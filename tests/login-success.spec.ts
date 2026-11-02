@@ -1,13 +1,24 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
 
-test('Login flow on Practice Test Automation', async ({ page }) => {
-  // Go directly to login page - more stable for CI/CD
-  await page.goto('https://practicetestautomation.com/practice-test-login/');
-  
-  await page.fill('input#username', 'student');
-  await page.fill('input#password', 'Password123');
-  await page.click('button#submit');
+test.describe('Login with POM @auth @smoke', () => {
+  test('Successful login', async ({ page }) => {
+    const login = new LoginPage(page);
+    await login.goto();
+    await login.login('student', 'Password123');
+    await login.assertLoginSuccess();
+  });
 
-  await expect(page.locator('h1')).toContainText('Logged In Successfully');
-  await expect(page).toHaveURL(/.*logged-in-successfully/);
+  test('Failed login - wrong password', async ({ page }) => {
+    const login = new LoginPage(page);
+    await login.goto();
+    await login.login('student', 'WrongPass');
+    await login.assertLoginFailed();
+  });
+
+  test('Failed login - empty data', async ({ page }) => {
+    const login = new LoginPage(page);
+    await login.goto();
+    await login.login('', '');
+  });
 });
