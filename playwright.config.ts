@@ -21,8 +21,8 @@ export default defineConfig({
   // Retry failed tests
   retries: process.env.CI ? 2 : 0,
 
-  // Number of workers
-  workers: process.env.CI ? 4 : undefined,
+  // Number of workers - 2 for Jenkins (was 4, too high for Mac)
+  workers: process.env.CI ? 2 : undefined,
 
   // Global timeout per test
   timeout: 60 * 1000,
@@ -44,68 +44,39 @@ export default defineConfig({
         outputFolder: 'playwright-report',
       },
     ],
-
     [
       'junit',
       {
         outputFile: 'test-results/junit-results.xml',
       },
     ],
-
     [
       'allure-playwright',
       {
         outputFolder: 'allure-results',
       },
     ],
-
     ['list'],
   ],
 
   // Shared Configuration
   use: {
-
-    // Application URL
-    baseURL:
-      process.env.BASE_URL ||
-      'https://www.saucedemo.com',
-
-    // Browser Mode
+    baseURL: process.env.BASE_URL || 'https://www.saucedemo.com',
     headless: process.env.HEADLESS !== 'false',
-
-    // Ignore certificate issues
     ignoreHTTPSErrors: true,
-
-    // Consistent viewport
-    viewport: {
-      width: 1920,
-      height: 1080,
-    },
-
-    // Action Timeout
+    viewport: { width: 1920, height: 1080 },
     actionTimeout: 15000,
-
-    // Navigation Timeout
     navigationTimeout: 30000,
-
-    // Reporting Artifacts
     screenshot: 'only-on-failure',
-
     video: 'retain-on-failure',
-
     trace: 'retain-on-failure',
-
-    // Uncomment if using saved login session
-    // storageState: 'testcontexts/auth.json',
-
     launchOptions: {
       slowMo: process.env.CI ? 0 : 100,
     },
   },
 
-  // Browser Matrix
+  // Browser Matrix - CHROMIUM ONLY FOR PIPELINE
   projects: [
-
     {
       name: 'chromium',
       use: {
@@ -113,51 +84,14 @@ export default defineConfig({
       },
     },
 
-    {
-      name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-      },
-    },
-
-    {
-      name: 'webkit',
-      use: {
-        ...devices['Desktop Safari'],
-      },
-    },
-
-    // Optional Edge
-
+    // Firefox & Webkit disabled for CI - uncomment to run locally only
     // {
-    //   name: 'edge',
-    //   use: {
-    //     ...devices['Desktop Edge'],
-    //     channel: 'msedge',
-    //   },
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
     // },
-
-    // Optional Mobile
-
     // {
-    //   name: 'Pixel 7',
-    //   use: { ...devices['Pixel 7'] },
-    // },
-
-    // {
-    //   name: 'iPhone 14',
-    //   use: { ...devices['iPhone 14'] },
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
     // },
   ],
-
-  // Useful when app must start before tests
-
-  /*
-  webServer: {
-    command: 'npm run start',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
-  */
 });
