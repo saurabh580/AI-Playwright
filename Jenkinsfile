@@ -1,11 +1,13 @@
 pipeline {
     agent any
-    tools { nodejs 'Node-20' }
+    tools { 
+        nodejs 'Node-20'
+    }
     options { timestamps() }
     environment { CI = 'true' }
     stages {
         stage('Clean') {
-            steps { sh 'rm -rf playwright-report test-results allure-results' }
+            steps { sh 'rm -rf playwright-report test-results 【entity-allure¦canonical_name=Allure】-results' }
         }
         stage('Install') {
             steps { 
@@ -15,7 +17,7 @@ pipeline {
         }
         stage('Run Tests') {
             steps { 
-                sh 'npx playwright test --project=chromium || true' 
+                sh 'npx playwright test --project=chromium' 
             }
         }
     }
@@ -30,8 +32,13 @@ pipeline {
                 reportFiles: 'index.html',
                 reportName: 'Playwright HTML Report'
             ])
-            allure(includeProperties: false, results: [[path: 'allure-results']])
-            archiveArtifacts artifacts: 'playwright-report/**/*, test-results/**/*', allowEmptyArchive: true
+            allure([
+                includeProperties: false,
+                jdk: '',
+                commandline: 'Allure',
+                results: [[path: 'allure-results']]
+            ])
+            archiveArtifacts artifacts: 'playwright-report/**/*, test-results/**/*, allure-results/**/*', allowEmptyArchive: true
         }
     }
 }
